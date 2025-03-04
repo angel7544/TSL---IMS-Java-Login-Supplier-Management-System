@@ -24,18 +24,30 @@ public class InventoryManagementSystem extends JFrame {
     private JLabel statusLabel;
     private TableRowSorter<ProductTableModel> sorter;
 
-    public InventoryManagementSystem() {
-        productDAO = new ProductDAO();
+    private final AuthService authService;
+    private final SupplierDAO supplierDAO;
+    private JComboBox<String> categoryComboBox;
+    private JLabel inventoryValueLabel;
+    
+    public InventoryManagementSystem(AuthService authService) {
+        this.authService = authService;
+        this.productDAO = new ProductDAO();
+        this.supplierDAO = new SupplierDAO();
 
-        setTitle("Inventory Management System");
+        setTitle("Inventory Management System - Logged in as: " + authService.getCurrentUser().getUsername());
         setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         initComponents();
         loadProductData();
+        updateInventoryValue();
+        loadCategories();
 
         setVisible(true);
+        
+        // Check for low stock items on startup
+        checkLowStockItems();
     }
 
     private void initComponents() {
@@ -62,9 +74,17 @@ public class InventoryManagementSystem extends JFrame {
         // Product management controls
         JPanel productPanel = new JPanel(new BorderLayout(0, 10));
         productPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
+        
+        // Add inventory value panel
+        JPanel inventoryValuePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel inventoryValueLabel = new JLabel("Total Inventory Value: $0.00");
+        inventoryValuePanel.add(inventoryValueLabel);
+        productPanel.add(inventoryValuePanel, BorderLayout.SOUTH);
 
-        // Add search panel
+        // Add search and filter panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        
+        // Search field
         JLabel searchLabel = new JLabel("Search: ");
         JTextField searchField = new JTextField(20);
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -81,8 +101,23 @@ public class InventoryManagementSystem extends JFrame {
                 filterProducts(searchField.getText());
             }
         });
+        
+        // Category filter
+        JLabel categoryLabel = new JLabel("Category: ");
+        JComboBox<String> categoryComboBox = new JComboBox<>();
+        categoryComboBox.addItem("All Categories");
+        categoryComboBox.addActionListener(e -> {
+            String category = categoryComboBox.getSelectedItem().toString();
+            if ("All Categories".equals(category)) {
+                category = "";
+            }
+            tableModel.refreshData(productDAO.getProductsByCategory(category));
+        });
+        
         searchPanel.add(searchLabel);
         searchPanel.add(searchField);
+        searchPanel.add(categoryLabel);
+        searchPanel.add(categoryComboBox);
         productPanel.add(searchPanel, BorderLayout.NORTH);
 
         productPanel.add(scrollPane, BorderLayout.CENTER);
@@ -207,6 +242,18 @@ public class InventoryManagementSystem extends JFrame {
         JMenuItem refreshItem = new JMenuItem("Refresh");
         refreshItem.addActionListener(e -> loadProductData());
         dataMenu.add(refreshItem);
+        
+        JMenuItem exportCsvItem = new JMenuItem("Export to CSV");
+        exportCsvItem.addActionListener(e -> exportToCsv());
+        dataMenu.add(exportCsvItem);
+        
+        JMenuItem importCsvItem = new JMenuItem("Import from CSV");
+        importCsvItem.addActionListener(e -> importFromCsv());
+        dataMenu.add(importCsvItem);
+        
+        JMenuItem supplierItem = new JMenuItem("Manage Suppliers");
+        supplierItem.addActionListener(e -> manageSuppliers());
+        dataMenu.add(supplierItem);
 
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutItem = new JMenuItem("About");
@@ -230,6 +277,113 @@ public class InventoryManagementSystem extends JFrame {
         clearForm();
         statusLabel.setText("Data loaded successfully");
         sorter.sort();
+        updateInventoryValue();
+        loadCategories();
+    }
+    
+    private void updateInventoryValue() {
+        double totalValue = productDAO.getTotalInventoryValue();
+        inventoryValueLabel.setText("Total Inventory Value: " + utils.InventoryUtils.formatCurrency(totalValue));
+    }
+    
+    private void loadCategories() {
+        String selectedCategory = null;
+        if (categoryComboBox.getSelectedIndex() > 0) {
+            selectedCategory = categoryComboBox.getSelectedItem().toString();
+        }
+        
+        categoryComboBox.removeAllItems();
+        categoryComboBox.addItem("All Categories");
+        
+        List<String> categories = productDAO.getAllCategories();
+        for (String category : categories) {
+            categoryComboBox.addItem(category);
+        }
+        
+        if (selectedCategory != null) {
+            categoryComboBox.setSelectedItem(selectedCategory);
+        }
+    }
+    
+    private void filterProducts(String searchTerm) {
+        tableModel.refreshData(productDAO.filterProducts(searchTerm));
+        updateInventoryValue();
+    }
+    
+    private void checkLowStockItems() {
+        List<Product> lowStockProducts = productDAO.getLowStockProducts(5);
+        if (!lowStockProducts.isEmpty()) {
+            StringBuilder message = new StringBuilder("The following products have low stock levels:\n\n");
+            for (Product product : lowStockProducts) {
+                message.append("- ").append(product.getName())
+                       .append(": ").append(product.getQuantity())
+                       .append(" remaining\n");
+            }
+            
+            JOptionPane.showMessageDialog(
+                this,
+                message.toString(),
+                "Low Stock Alert",
+                JOptionPane.WARNING_MESSAGE
+            );
+        }
+    }
+    
+    private void manageSuppliers() {
+        SupplierManagementDialog dialog = new SupplierManagementDialog(this, supplierDAO);
+        dialog.setVisible(true);
+    }
+    
+    private void exportToCsv() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Export Products to CSV");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
+        
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.toLowerCase().endsWith(".csv")) {
+                path += ".csv";
+                file = new File(path);
+            }
+            
+            try {
+                utils.CsvUtils.exportToCsv(productDAO.getAllProducts(), file);
+                statusLabel.setText("Products exported to CSV successfully: " + file.getName());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Error exporting to CSV: " + e.getMessage(),
+                    "Export Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void importFromCsv() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Import Products from CSV");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
+        
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            
+            try {
+                List<Product> importedProducts = utils.CsvUtils.importFromCsv(file, productDAO);
+                loadProductData();
+                statusLabel.setText("Imported " + importedProducts.size() + " products from CSV successfully");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Error importing from CSV: " + e.getMessage(),
+                    "Import Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                e.printStackTrace();
+            }
+        }
     }
 
     private void clearForm() {

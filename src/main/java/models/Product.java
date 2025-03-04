@@ -12,18 +12,26 @@ public class Product implements Serializable {
     private double price;
     private int quantity;
     private int sold;
+    private String category;
+    private int supplierId;
     
     public Product() {
-        this(0, "", "", 0.0, 0, 0);
+        this(0, "", "", 0.0, 0, 0, "", 0);
     }
     
     public Product(int id, String name, String description, double price, int quantity, int sold) {
+        this(id, name, description, price, quantity, sold, "", 0);
+    }
+    
+    public Product(int id, String name, String description, double price, int quantity, int sold, String category, int supplierId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
         this.sold = sold;
+        this.category = category;
+        this.supplierId = supplierId;
     }
     
     public int getId() {
@@ -72,6 +80,22 @@ public class Product implements Serializable {
     
     public void setSold(int sold) {
         this.sold = sold;
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    
+    public int getSupplierId() {
+        return supplierId;
+    }
+    
+    public void setSupplierId(int supplierId) {
+        this.supplierId = supplierId;
     }
     
     public void sellItems(int quantity) {
