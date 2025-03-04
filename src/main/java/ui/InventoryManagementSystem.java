@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.table.TableRowSorter;
-import javax.swing.RowFilter;
 
 public class InventoryManagementSystem extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -260,8 +259,14 @@ public class InventoryManagementSystem extends JFrame {
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutItem = new JMenuItem("About");
         aboutItem.addActionListener(e ->
-            JOptionPane.showMessageDialog(this,
-                "Inventory Management System\nVersion 1.0",
+           JOptionPane.showMessageDialog(this,
+                "<html>" +
+                        "Version: 1.1.0<br>" +
+                        "Developer: Angel Singh<br>" +
+                        "Contact: angelsingh2199@gmail.com<br>" +
+                        "Description: This tool allows inserting blank rows or columns between every row/column of an Excel file.<br>" +
+                        "Built using Apache POI and Swing." +
+                        "</html>",
                 "About",
                 JOptionPane.INFORMATION_MESSAGE)
         );
