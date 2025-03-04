@@ -264,7 +264,13 @@ public class InventoryManagementSystem extends JFrame {
                         "Version: 1.1.0<br>" +
                         "Developer: Angel Singh<br>" +
                         "Contact: angelsingh2199@gmail.com<br>" +
-                        "Description: This tool allows inserting blank rows or columns between every row/column of an Excel file.<br>" +
+                        "Description: # Inventory Management System\r\n" + //
+                                                        "\r\n" + //
+                                                        "A full-featured Java application for managing inventory, products, and suppliers.\r\n" + //
+                                                        "\r\n" + //
+                                                        "## Overview\r\n" + //
+                                                        "\r\n" + //
+                                                        "This Inventory Management System helps businesses track products, manage suppliers, monitor stock levels, and generate reports. Built with Java Swing, it provides an intuitive graphical interface for all inventory management operations.<br>" +
                         "Built using Apache POI and Swing." +
                         "</html>",
                 "About",
