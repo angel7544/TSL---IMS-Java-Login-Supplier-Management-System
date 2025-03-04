@@ -35,6 +35,15 @@ public class AuthService {
             currentUser = user;
             return true;
         }
+        
+        // Debug information
+        System.out.println("Login failed for username: " + username);
+        if (user == null) {
+            System.out.println("User not found in database");
+        } else {
+            System.out.println("Password hash mismatch");
+        }
+        
         return false;
     }
 

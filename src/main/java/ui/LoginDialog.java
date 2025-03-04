@@ -60,14 +60,21 @@ public class LoginDialog extends JDialog {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
             
-            if (authService.login(username, password)) {
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Username and password cannot be empty",
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE);
+            } else if (authService.login(username, password)) {
                 authenticated = true;
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, 
-                    "Invalid username or password", 
+                    "Invalid username or password. Default is admin/admin", 
                     "Login Failed", 
                     JOptionPane.ERROR_MESSAGE);
+                // Reset password field for retry
+                passwordField.setText("");
             }
         });
         
