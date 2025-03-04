@@ -1,9 +1,9 @@
 package ui;
 
 import dao.ProductDAO;
-import dao.SupplierDAO; // Added import
+import dao.SupplierDAO;
 import models.Product;
-import services.AuthService; // Added import
+import auth.AuthService;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.ArrayList;
 import javax.swing.table.TableRowSorter;
 import javax.swing.RowFilter;
-
 
 public class InventoryManagementSystem extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -260,10 +259,10 @@ public class InventoryManagementSystem extends JFrame {
 
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutItem = new JMenuItem("About");
-        aboutItem.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, 
-                "Inventory Management System\nVersion 1.0", 
-                "About", 
+        aboutItem.addActionListener(e ->
+            JOptionPane.showMessageDialog(this,
+                "Inventory Management System\nVersion 1.0",
+                "About",
                 JOptionPane.INFORMATION_MESSAGE)
         );
         helpMenu.add(aboutItem);

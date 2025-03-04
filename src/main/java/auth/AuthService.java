@@ -7,30 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-class User implements Serializable {
-    private String username;
-    private String passwordHash;
-    private String role;
-
-    public User(String username, String passwordHash, String role) {
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.role = role;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public String getRole() {
-        return role;
-    }
-}
-
 public class AuthService {
     private static final String USER_FILE = "users.dat";
     private Map<String, User> users = new HashMap<>();
