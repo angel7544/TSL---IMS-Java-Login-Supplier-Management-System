@@ -109,11 +109,11 @@ public class InventoryManagementSystem extends JFrame {
         categoryComboBox = new JComboBox<>();
         categoryComboBox.addItem("All Categories");
         categoryComboBox.addActionListener(e -> {
-            String category = categoryComboBox.getSelectedItem().toString();
-            if ("All Categories".equals(category)) {
-                category = "";
+            Object selectedItem = categoryComboBox.getSelectedItem();
+            if (selectedItem != null) {
+                String selectedCategory = selectedItem.toString();
+                filterProductsByCategory(selectedCategory);
             }
-            tableModel.refreshData(productDAO.getProductsByCategory(category));
         });
 
         searchPanel.add(searchLabel);
@@ -289,11 +289,10 @@ public class InventoryManagementSystem extends JFrame {
     }
 
     private void loadCategories() {
-        String selectedCategory = null;
-        if (categoryComboBox.getSelectedIndex() > 0) {
-            selectedCategory = categoryComboBox.getSelectedItem().toString();
-        }
+        // Save the currently selected item
+        Object selectedItem = categoryComboBox.getSelectedItem();
 
+        categoryComboBox.removeActionListener(categoryComboBox.getActionListeners()[0]);
         categoryComboBox.removeAllItems();
         categoryComboBox.addItem("All Categories");
 
@@ -302,9 +301,20 @@ public class InventoryManagementSystem extends JFrame {
             categoryComboBox.addItem(category);
         }
 
-        if (selectedCategory != null) {
-            categoryComboBox.setSelectedItem(selectedCategory);
+        // Restore the selected item or default to "All Categories"
+        if (selectedItem != null && categories.contains(selectedItem.toString())) {
+            categoryComboBox.setSelectedItem(selectedItem);
+        } else {
+            categoryComboBox.setSelectedItem("All Categories");
         }
+
+        categoryComboBox.addActionListener(e -> {
+            Object selected = categoryComboBox.getSelectedItem();
+            if (selected != null) {
+                String selectedCategory = selected.toString();
+                filterProductsByCategory(selectedCategory);
+            }
+        });
     }
 
     private void filterProducts(String searchTerm) {
@@ -314,6 +324,13 @@ public class InventoryManagementSystem extends JFrame {
             sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchTerm));
         }
         updateInventoryValue();
+    }
+
+    private void filterProductsByCategory(String category) {
+        if ("All Categories".equals(category)) {
+            category = "";
+        }
+        tableModel.refreshData(productDAO.getProductsByCategory(category));
     }
 
     private void checkLowStockItems() {
