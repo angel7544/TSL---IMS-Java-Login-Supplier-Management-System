@@ -1,7 +1,9 @@
 package ui;
 
 import dao.ProductDAO;
+import dao.SupplierDAO; // Added import
 import models.Product;
+import services.AuthService; // Added import
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.table.TableRowSorter;
+import javax.swing.RowFilter;
 
 
 public class InventoryManagementSystem extends JFrame {
@@ -28,7 +31,7 @@ public class InventoryManagementSystem extends JFrame {
     private final SupplierDAO supplierDAO;
     private JComboBox<String> categoryComboBox;
     private JLabel inventoryValueLabel;
-    
+
     public InventoryManagementSystem(AuthService authService) {
         this.authService = authService;
         this.productDAO = new ProductDAO();
@@ -45,7 +48,7 @@ public class InventoryManagementSystem extends JFrame {
         loadCategories();
 
         setVisible(true);
-        
+
         // Check for low stock items on startup
         checkLowStockItems();
     }
@@ -74,16 +77,16 @@ public class InventoryManagementSystem extends JFrame {
         // Product management controls
         JPanel productPanel = new JPanel(new BorderLayout(0, 10));
         productPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
-        
+
         // Add inventory value panel
         JPanel inventoryValuePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel inventoryValueLabel = new JLabel("Total Inventory Value: $0.00");
+        inventoryValueLabel = new JLabel("Total Inventory Value: $0.00");
         inventoryValuePanel.add(inventoryValueLabel);
         productPanel.add(inventoryValuePanel, BorderLayout.SOUTH);
 
         // Add search and filter panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        
+
         // Search field
         JLabel searchLabel = new JLabel("Search: ");
         JTextField searchField = new JTextField(20);
@@ -101,10 +104,10 @@ public class InventoryManagementSystem extends JFrame {
                 filterProducts(searchField.getText());
             }
         });
-        
+
         // Category filter
         JLabel categoryLabel = new JLabel("Category: ");
-        JComboBox<String> categoryComboBox = new JComboBox<>();
+        categoryComboBox = new JComboBox<>();
         categoryComboBox.addItem("All Categories");
         categoryComboBox.addActionListener(e -> {
             String category = categoryComboBox.getSelectedItem().toString();
@@ -113,7 +116,7 @@ public class InventoryManagementSystem extends JFrame {
             }
             tableModel.refreshData(productDAO.getProductsByCategory(category));
         });
-        
+
         searchPanel.add(searchLabel);
         searchPanel.add(searchField);
         searchPanel.add(categoryLabel);
@@ -242,15 +245,15 @@ public class InventoryManagementSystem extends JFrame {
         JMenuItem refreshItem = new JMenuItem("Refresh");
         refreshItem.addActionListener(e -> loadProductData());
         dataMenu.add(refreshItem);
-        
+
         JMenuItem exportCsvItem = new JMenuItem("Export to CSV");
         exportCsvItem.addActionListener(e -> exportToCsv());
         dataMenu.add(exportCsvItem);
-        
+
         JMenuItem importCsvItem = new JMenuItem("Import from CSV");
         importCsvItem.addActionListener(e -> importFromCsv());
         dataMenu.add(importCsvItem);
-        
+
         JMenuItem supplierItem = new JMenuItem("Manage Suppliers");
         supplierItem.addActionListener(e -> manageSuppliers());
         dataMenu.add(supplierItem);
@@ -280,36 +283,40 @@ public class InventoryManagementSystem extends JFrame {
         updateInventoryValue();
         loadCategories();
     }
-    
+
     private void updateInventoryValue() {
         double totalValue = productDAO.getTotalInventoryValue();
         inventoryValueLabel.setText("Total Inventory Value: " + utils.InventoryUtils.formatCurrency(totalValue));
     }
-    
+
     private void loadCategories() {
         String selectedCategory = null;
         if (categoryComboBox.getSelectedIndex() > 0) {
             selectedCategory = categoryComboBox.getSelectedItem().toString();
         }
-        
+
         categoryComboBox.removeAllItems();
         categoryComboBox.addItem("All Categories");
-        
+
         List<String> categories = productDAO.getAllCategories();
         for (String category : categories) {
             categoryComboBox.addItem(category);
         }
-        
+
         if (selectedCategory != null) {
             categoryComboBox.setSelectedItem(selectedCategory);
         }
     }
-    
+
     private void filterProducts(String searchTerm) {
-        tableModel.refreshData(productDAO.filterProducts(searchTerm));
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            sorter.setRowFilter(null);
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchTerm));
+        }
         updateInventoryValue();
     }
-    
+
     private void checkLowStockItems() {
         List<Product> lowStockProducts = productDAO.getLowStockProducts(5);
         if (!lowStockProducts.isEmpty()) {
@@ -319,7 +326,7 @@ public class InventoryManagementSystem extends JFrame {
                        .append(": ").append(product.getQuantity())
                        .append(" remaining\n");
             }
-            
+
             JOptionPane.showMessageDialog(
                 this,
                 message.toString(),
@@ -328,17 +335,17 @@ public class InventoryManagementSystem extends JFrame {
             );
         }
     }
-    
+
     private void manageSuppliers() {
         SupplierManagementDialog dialog = new SupplierManagementDialog(this, supplierDAO);
         dialog.setVisible(true);
     }
-    
+
     private void exportToCsv() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Export Products to CSV");
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
-        
+
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             String path = file.getAbsolutePath();
@@ -346,7 +353,7 @@ public class InventoryManagementSystem extends JFrame {
                 path += ".csv";
                 file = new File(path);
             }
-            
+
             try {
                 utils.CsvUtils.exportToCsv(productDAO.getAllProducts(), file);
                 statusLabel.setText("Products exported to CSV successfully: " + file.getName());
@@ -361,15 +368,15 @@ public class InventoryManagementSystem extends JFrame {
             }
         }
     }
-    
+
     private void importFromCsv() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Import Products from CSV");
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
-        
+
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            
+
             try {
                 List<Product> importedProducts = utils.CsvUtils.importFromCsv(file, productDAO);
                 loadProductData();
@@ -658,14 +665,6 @@ public class InventoryManagementSystem extends JFrame {
                     JOptionPane.showMessageDialog(this, "Error restoring data: " + e.getMessage(), "Restore Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
-        }
-    }
-
-    private void filterProducts(String text) {
-        if (text == null || text.isEmpty()) {
-            sorter.setRowFilter(null);
-        } else {
-            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
         }
     }
 }

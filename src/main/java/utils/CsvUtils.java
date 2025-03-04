@@ -47,7 +47,13 @@ public class CsvUtils {
                         Integer.parseInt(data[5])
                     );
                     importedProducts.add(product);
-                    productDAO.saveProduct(product);
+                    // Check if the product already exists and update it, or add a new one
+                    Product existingProduct = productDAO.getProductById(product.getId());
+                    if (existingProduct != null) {
+                        productDAO.updateProduct(product);
+                    } else {
+                        productDAO.addProduct(product);
+                    }
                 }
             }
         }
