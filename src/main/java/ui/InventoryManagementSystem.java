@@ -259,23 +259,37 @@ public class InventoryManagementSystem extends JFrame {
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutItem = new JMenuItem("About");
         aboutItem.addActionListener(e ->
-           JOptionPane.showMessageDialog(this,
-                "<html>" +
-                        "Version: 1.1.0<br>" +
-                        "Developer: Angel Singh<br>" +
-                        "Contact: angelsingh2199@gmail.com<br>" +
-                        "Description: # Inventory Management System<br>" + //
-                                                        "<br>" + //
-                                                        "A full-featured Java application for managing inventory, products, and suppliers.<br>" + //
-                                                        "\<br>" + //
-                                                        "## Overview<br>" + //
-                                                        "<br>" + //
-                                                        "This Inventory Management System helps businesses track products, manage suppliers, monitor stock levels, and generate reports.<br>"
-                                                        "Built with Java Swing, it provides an intuitive graphical interface for all inventory management operations.<br>" +
-                        "Built using Apache POI and Swing.<br>" +
-                        "</html>",
-                "About",
-                JOptionPane.INFORMATION_MESSAGE)
+        JOptionPane.showMessageDialog(this,
+        "<html>" +
+                "<b>Inventory Management System</b><br><br>" +
+                "<b>Version:</b> 1.1.0<br>" +
+                "<b>Developer:</b> Angel Singh<br>" +
+                "<b>Contact:</b> angelsingh2199@gmail.com<br><br>" +
+                "<b>Overview:</b><br>" +
+                "A full-featured Java application for managing inventory, products, and suppliers.<br><br>" +
+                "<b>Features:</b><br>" +
+                "&#8226; User Authentication: Secure login system with role-based access<br>" +
+                "&#8226; Product Management: Add, edit, delete, sell, and restock products<br>" +
+                "&#8226; Supplier Management: Track supplier information and relationships<br>" +
+                "&#8226; Inventory Tracking: Real-time monitoring of stock levels<br>" +
+                "&#8226; Category Filtering: Organize products by categories<br>" +
+                "&#8226; Low Stock Alerts: Automatic notifications for items running low<br>" +
+                "&#8226; Data Import/Export: CSV import/export functionality<br>" +
+                "&#8226; Reporting: Generate inventory reports and analytics<br>" +
+                "&#8226; Backup & Restore: Data backup and restoration capabilities<br><br>" +
+                "<b>Technical Details:</b><br>" +
+                "Language: Java (requires Java 14+)<br>" +
+                "UI Framework: Java Swing<br>" +
+                "Architecture: MVC Pattern<br>" +
+                "Build Tool: Maven<br>" +
+                "Dependencies:<br>" +
+                "&#8226; Apache POI (Excel support)<br>" +
+                "&#8226; iText (PDF support)<br>" +
+                "&#8226; JUnit (Testing)<br>" +
+                "<br><b>Note:</b> Built using Apache POI and Swing." +
+                "</html>",
+        "About",
+        JOptionPane.INFORMATION_MESSAGE)
         );
         helpMenu.add(aboutItem);
 
