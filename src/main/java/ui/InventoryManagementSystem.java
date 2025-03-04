@@ -17,28 +17,157 @@ public class InventoryManagementSystem extends JFrame {
     private final ProductDAO productDAO;
     private JTable productTable;
     private ProductTableModel tableModel;
+    private JTextField nameField, descField, priceField, quantityField;
     private JButton addButton, editButton, deleteButton, sellButton, restockButton;
-    private JButton backupButton, restoreButton, reportButton;
     private JLabel statusLabel;
     
     public InventoryManagementSystem() {
         productDAO = new ProductDAO();
         
-        // Initialize UI components
         setTitle("Inventory Management System");
-        setSize(900, 600);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
-        createMenuBar();
-        createMainPanel();
-        
-        refreshProductList();
+        initComponents();
+        loadProductData();
         
         setVisible(true);
     }
     
-    private void createMenuBar() {
+    private void initComponents() {
+        // Main panel
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        // Create table
+        tableModel = new ProductTableModel(productDAO.getAllProducts());
+        productTable = new JTable(tableModel);
+        productTable.getSelectionModel().addListSelectionListener(e -> {
+            boolean rowSelected = productTable.getSelectedRow() >= 0;
+            editButton.setEnabled(rowSelected);
+            deleteButton.setEnabled(rowSelected);
+            sellButton.setEnabled(rowSelected);
+            restockButton.setEnabled(rowSelected);
+        });
+        
+        JScrollPane scrollPane = new JScrollPane(productTable);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        // Form panel for adding/editing products
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createTitledBorder("Product Details"));
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        
+        // Name
+        formPanel.add(new JLabel("Name:"), gbc);
+        gbc.gridx++;
+        nameField = new JTextField(20);
+        formPanel.add(nameField, gbc);
+        
+        // Description
+        gbc.gridx = 0;
+        gbc.gridy++;
+        formPanel.add(new JLabel("Description:"), gbc);
+        gbc.gridx++;
+        descField = new JTextField(20);
+        formPanel.add(descField, gbc);
+        
+        // Price
+        gbc.gridx = 0;
+        gbc.gridy++;
+        formPanel.add(new JLabel("Price:"), gbc);
+        gbc.gridx++;
+        priceField = new JTextField(20);
+        formPanel.add(priceField, gbc);
+        
+        // Quantity
+        gbc.gridx = 0;
+        gbc.gridy++;
+        formPanel.add(new JLabel("Quantity:"), gbc);
+        gbc.gridx++;
+        quantityField = new JTextField(20);
+        formPanel.add(quantityField, gbc);
+        
+        // Buttons panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        
+        addButton = new JButton("Add Product");
+        addButton.addActionListener(e -> addProduct());
+        buttonPanel.add(addButton);
+        
+        editButton = new JButton("Update");
+        editButton.addActionListener(e -> editProduct());
+        editButton.setEnabled(false);
+        buttonPanel.add(editButton);
+        
+        deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e -> deleteProduct());
+        deleteButton.setEnabled(false);
+        buttonPanel.add(deleteButton);
+        
+        sellButton = new JButton("Sell");
+        sellButton.addActionListener(e -> sellProduct());
+        sellButton.setEnabled(false);
+        buttonPanel.add(sellButton);
+        
+        restockButton = new JButton("Restock");
+        restockButton.addActionListener(e -> restockProduct());
+        restockButton.setEnabled(false);
+        buttonPanel.add(restockButton);
+        
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        formPanel.add(buttonPanel, gbc);
+        
+        // Status label
+        statusLabel = new JLabel(" ");
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        formPanel.add(statusLabel, gbc);
+        
+        mainPanel.add(formPanel, BorderLayout.SOUTH);
+        
+        // Analytics and reports panel
+        JPanel reportsPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        reportsPanel.setBorder(BorderFactory.createTitledBorder("Reports & Tools"));
+        
+        JButton pdfReportButton = new JButton("Generate PDF Report");
+        pdfReportButton.addActionListener(e -> generatePdfReport());
+        reportsPanel.add(pdfReportButton);
+        
+        JButton excelReportButton = new JButton("Generate Excel Report");
+        excelReportButton.addActionListener(e -> generateExcelReport());
+        reportsPanel.add(excelReportButton);
+        
+        JButton topSellingButton = new JButton("Show Top Selling Product");
+        topSellingButton.addActionListener(e -> showTopSellingProduct());
+        reportsPanel.add(topSellingButton);
+        
+        JButton lowStockButton = new JButton("Show Low Stock Products");
+        lowStockButton.addActionListener(e -> showLowStockProducts());
+        reportsPanel.add(lowStockButton);
+        
+        JButton backupButton = new JButton("Backup Data");
+        backupButton.addActionListener(e -> backupData());
+        reportsPanel.add(backupButton);
+        
+        JButton restoreButton = new JButton("Restore Data");
+        restoreButton.addActionListener(e -> restoreData());
+        reportsPanel.add(restoreButton);
+        
+        mainPanel.add(reportsPanel, BorderLayout.EAST);
+        
+        setContentPane(mainPanel);
+        
+        // Set up menu
         JMenuBar menuBar = new JMenuBar();
         
         JMenu fileMenu = new JMenu("File");
@@ -46,189 +175,80 @@ public class InventoryManagementSystem extends JFrame {
         exitItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitItem);
         
-        JMenu reportMenu = new JMenu("Reports");
-        JMenuItem pdfReportItem = new JMenuItem("Generate PDF Report");
-        pdfReportItem.addActionListener(e -> generateReport("pdf"));
+        JMenu dataMenu = new JMenu("Data");
+        JMenuItem refreshItem = new JMenuItem("Refresh");
+        refreshItem.addActionListener(e -> loadProductData());
+        dataMenu.add(refreshItem);
         
-        JMenuItem excelReportItem = new JMenuItem("Generate Excel Report");
-        excelReportItem.addActionListener(e -> generateReport("excel"));
-        
-        reportMenu.add(pdfReportItem);
-        reportMenu.add(excelReportItem);
-        
-        JMenu analyticsMenu = new JMenu("Analytics");
-        JMenuItem topSellingItem = new JMenuItem("Top Selling Product");
-        topSellingItem.addActionListener(e -> showTopSellingProduct());
-        
-        JMenuItem lowStockItem = new JMenuItem("Low Stock Alert");
-        lowStockItem.addActionListener(e -> showLowStockProducts());
-        
-        analyticsMenu.add(topSellingItem);
-        analyticsMenu.add(lowStockItem);
+        JMenu helpMenu = new JMenu("Help");
+        JMenuItem aboutItem = new JMenuItem("About");
+        aboutItem.addActionListener(e -> 
+            JOptionPane.showMessageDialog(this, 
+                "Inventory Management System\nVersion 1.0", 
+                "About", 
+                JOptionPane.INFORMATION_MESSAGE)
+        );
+        helpMenu.add(aboutItem);
         
         menuBar.add(fileMenu);
-        menuBar.add(reportMenu);
-        menuBar.add(analyticsMenu);
+        menuBar.add(dataMenu);
+        menuBar.add(helpMenu);
         
         setJMenuBar(menuBar);
     }
     
-    private void createMainPanel() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        
-        // Create table
-        tableModel = new ProductTableModel(productDAO.getAllProducts());
-        productTable = new JTable(tableModel);
-        productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        productTable.setAutoCreateRowSorter(true);
-        JScrollPane scrollPane = new JScrollPane(productTable);
-        
-        // Control buttons panel
-        JPanel buttonPanel = new JPanel();
-        addButton = new JButton("Add Product");
-        editButton = new JButton("Edit Product");
-        deleteButton = new JButton("Delete Product");
-        sellButton = new JButton("Sell");
-        restockButton = new JButton("Restock");
-        backupButton = new JButton("Backup");
-        restoreButton = new JButton("Restore");
-        reportButton = new JButton("Generate Report");
-        
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(sellButton);
-        buttonPanel.add(restockButton);
-        buttonPanel.add(backupButton);
-        buttonPanel.add(restoreButton);
-        buttonPanel.add(reportButton);
-        
-        // Status bar
-        statusLabel = new JLabel("Ready");
-        statusLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        
-        // Add components to main panel
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
-        mainPanel.add(statusLabel, BorderLayout.SOUTH);
-        
-        // Add action listeners
-        addButton.addActionListener(e -> addProduct());
-        editButton.addActionListener(e -> editProduct());
-        deleteButton.addActionListener(e -> deleteProduct());
-        sellButton.addActionListener(e -> sellProduct());
-        restockButton.addActionListener(e -> restockProduct());
-        backupButton.addActionListener(e -> backupData());
-        restoreButton.addActionListener(e -> restoreData());
-        reportButton.addActionListener(e -> generateReport("pdf"));
-        
-        // Add main panel to frame
-        add(mainPanel);
+    private void loadProductData() {
+        tableModel.refreshData(productDAO.getAllProducts());
+        clearForm();
+        statusLabel.setText("Data loaded successfully");
     }
     
-    private void refreshProductList() {
-        tableModel.refreshData(productDAO.getAllProducts());
-        statusLabel.setText("Product list updated");
+    private void clearForm() {
+        nameField.setText("");
+        descField.setText("");
+        priceField.setText("");
+        quantityField.setText("");
+        productTable.clearSelection();
     }
     
     private void addProduct() {
-        JDialog dialog = new JDialog(this, "Add New Product", true);
-        dialog.setSize(400, 300);
-        dialog.setLocationRelativeTo(this);
-        
-        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        JTextField nameField = new JTextField();
-        JTextField descField = new JTextField();
-        JTextField priceField = new JTextField();
-        JTextField quantityField = new JTextField();
-        
-        panel.add(new JLabel("Name:"));
-        panel.add(nameField);
-        panel.add(new JLabel("Description:"));
-        panel.add(descField);
-        panel.add(new JLabel("Price:"));
-        panel.add(priceField);
-        panel.add(new JLabel("Quantity:"));
-        panel.add(quantityField);
-        
-        JButton saveButton = new JButton("Save");
-        JButton cancelButton = new JButton("Cancel");
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(saveButton);
-        buttonPanel.add(cancelButton);
-        
-        saveButton.addActionListener(e -> {
-            try {
-                String name = nameField.getText().trim();
-                String description = descField.getText().trim();
-                double price = Double.parseDouble(priceField.getText().trim());
-                int quantity = Integer.parseInt(quantityField.getText().trim());
-                
-                if (name.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "Name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                
-                Product product = new Product(0, name, description, price, quantity);
-                productDAO.addProduct(product);
-                refreshProductList();
-                dialog.dispose();
-                statusLabel.setText("Product added successfully");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid price or quantity", "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            String name = nameField.getText().trim();
+            String description = descField.getText().trim();
+            double price = Double.parseDouble(priceField.getText().trim());
+            int quantity = Integer.parseInt(quantityField.getText().trim());
+            
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Name cannot be empty", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        });
-        
-        cancelButton.addActionListener(e -> dialog.dispose());
-        
-        dialog.setLayout(new BorderLayout());
-        dialog.add(panel, BorderLayout.CENTER);
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
-        dialog.setVisible(true);
+            
+            if (price < 0) {
+                JOptionPane.showMessageDialog(this, "Price cannot be negative", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (quantity < 0) {
+                JOptionPane.showMessageDialog(this, "Quantity cannot be negative", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Product product = new Product(0, name, description, price, quantity, 0);
+            productDAO.addProduct(product);
+            
+            loadProductData();
+            statusLabel.setText("Product added successfully");
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void editProduct() {
         int selectedRow = productTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product to edit", "No Selection", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        int modelRow = productTable.convertRowIndexToModel(selectedRow);
-        Product product = tableModel.getProductAt(modelRow);
-        
-        JDialog dialog = new JDialog(this, "Edit Product", true);
-        dialog.setSize(400, 300);
-        dialog.setLocationRelativeTo(this);
-        
-        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        JTextField nameField = new JTextField(product.getName());
-        JTextField descField = new JTextField(product.getDescription());
-        JTextField priceField = new JTextField(String.valueOf(product.getPrice()));
-        JTextField quantityField = new JTextField(String.valueOf(product.getQuantity()));
-        
-        panel.add(new JLabel("Name:"));
-        panel.add(nameField);
-        panel.add(new JLabel("Description:"));
-        panel.add(descField);
-        panel.add(new JLabel("Price:"));
-        panel.add(priceField);
-        panel.add(new JLabel("Quantity:"));
-        panel.add(quantityField);
-        
-        JButton saveButton = new JButton("Save");
-        JButton cancelButton = new JButton("Cancel");
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(saveButton);
-        buttonPanel.add(cancelButton);
-        
-        saveButton.addActionListener(e -> {
+        if (selectedRow >= 0) {
+            Product product = tableModel.getProductAt(selectedRow);
+            
             try {
                 String name = nameField.getText().trim();
                 String description = descField.getText().trim();
@@ -236,7 +256,17 @@ public class InventoryManagementSystem extends JFrame {
                 int quantity = Integer.parseInt(quantityField.getText().trim());
                 
                 if (name.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "Name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Name cannot be empty", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                if (price < 0) {
+                    JOptionPane.showMessageDialog(this, "Price cannot be negative", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                if (quantity < 0) {
+                    JOptionPane.showMessageDialog(this, "Quantity cannot be negative", "Input Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 
@@ -246,137 +276,219 @@ public class InventoryManagementSystem extends JFrame {
                 product.setQuantity(quantity);
                 
                 productDAO.updateProduct(product);
-                refreshProductList();
-                dialog.dispose();
+                
+                loadProductData();
                 statusLabel.setText("Product updated successfully");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid price or quantity", "Error", JOptionPane.ERROR_MESSAGE);
+                
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid number format", "Input Error", JOptionPane.ERROR_MESSAGE);
             }
-        });
-        
-        cancelButton.addActionListener(e -> dialog.dispose());
-        
-        dialog.setLayout(new BorderLayout());
-        dialog.add(panel, BorderLayout.CENTER);
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
-        dialog.setVisible(true);
+        }
     }
     
     private void deleteProduct() {
         int selectedRow = productTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product to delete", "No Selection", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        int modelRow = productTable.convertRowIndexToModel(selectedRow);
-        Product product = tableModel.getProductAt(modelRow);
-        
-        int confirm = JOptionPane.showConfirmDialog(this, 
-                "Are you sure you want to delete " + product.getName() + "?", 
-                "Confirm Delete", 
-                JOptionPane.YES_NO_OPTION);
-        
-        if (confirm == JOptionPane.YES_OPTION) {
-            productDAO.deleteProduct(product.getId());
-            refreshProductList();
-            statusLabel.setText("Product deleted successfully");
+        if (selectedRow >= 0) {
+            Product product = tableModel.getProductAt(selectedRow);
+            
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete '" + product.getName() + "'?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+            );
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                productDAO.deleteProduct(product.getId());
+                loadProductData();
+                statusLabel.setText("Product deleted successfully");
+            }
         }
     }
     
     private void sellProduct() {
         int selectedRow = productTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product to sell", "No Selection", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        int modelRow = productTable.convertRowIndexToModel(selectedRow);
-        Product product = tableModel.getProductAt(modelRow);
-        
-        String input = JOptionPane.showInputDialog(this, 
-                "Current stock: " + product.getQuantity() + "\nEnter quantity to sell:", 
-                "Sell Product", 
-                JOptionPane.QUESTION_MESSAGE);
-        
-        if (input != null && !input.trim().isEmpty()) {
-            try {
-                int quantity = Integer.parseInt(input.trim());
-                if (quantity <= 0) {
-                    JOptionPane.showMessageDialog(this, "Quantity must be positive", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                
-                if (product.removeStock(quantity)) {
+        if (selectedRow >= 0) {
+            Product product = tableModel.getProductAt(selectedRow);
+            
+            String input = JOptionPane.showInputDialog(
+                this,
+                "Enter quantity to sell (available: " + product.getQuantity() + "):",
+                "Sell Product",
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (input != null) {
+                try {
+                    int quantity = Integer.parseInt(input);
+                    
+                    if (quantity <= 0) {
+                        JOptionPane.showMessageDialog(this, "Quantity must be positive", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    if (quantity > product.getQuantity()) {
+                        JOptionPane.showMessageDialog(this, "Not enough stock available", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    product.sellItems(quantity);
                     productDAO.updateProduct(product);
-                    refreshProductList();
-                    statusLabel.setText("Sold " + quantity + " units of " + product.getName());
-                } else {
-                    JOptionPane.showMessageDialog(this, 
-                            "Insufficient stock. Current stock: " + product.getQuantity(), 
-                            "Stock Error", 
-                            JOptionPane.ERROR_MESSAGE);
+                    
+                    loadProductData();
+                    statusLabel.setText("Product sold successfully");
+                    
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid number format", "Input Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid number", "Invalid Input", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
     
     private void restockProduct() {
         int selectedRow = productTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a product to restock", "No Selection", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        int modelRow = productTable.convertRowIndexToModel(selectedRow);
-        Product product = tableModel.getProductAt(modelRow);
-        
-        String input = JOptionPane.showInputDialog(this, 
-                "Current stock: " + product.getQuantity() + "\nEnter quantity to add:", 
-                "Restock Product", 
-                JOptionPane.QUESTION_MESSAGE);
-        
-        if (input != null && !input.trim().isEmpty()) {
-            try {
-                int quantity = Integer.parseInt(input.trim());
-                if (quantity <= 0) {
-                    JOptionPane.showMessageDialog(this, "Quantity must be positive", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                    return;
+        if (selectedRow >= 0) {
+            Product product = tableModel.getProductAt(selectedRow);
+            
+            String input = JOptionPane.showInputDialog(
+                this,
+                "Enter quantity to restock:",
+                "Restock Product",
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (input != null) {
+                try {
+                    int quantity = Integer.parseInt(input);
+                    
+                    if (quantity <= 0) {
+                        JOptionPane.showMessageDialog(this, "Quantity must be positive", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    product.restock(quantity);
+                    productDAO.updateProduct(product);
+                    
+                    loadProductData();
+                    statusLabel.setText("Product restocked successfully");
+                    
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Invalid number format", "Input Error", JOptionPane.ERROR_MESSAGE);
                 }
-                
-                product.addStock(quantity);
-                productDAO.updateProduct(product);
-                refreshProductList();
-                statusLabel.setText("Added " + quantity + " units to " + product.getName() + " stock");
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid number", "Invalid Input", JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+    
+    private void generatePdfReport() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save PDF Report");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Files", "pdf"));
+        
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.toLowerCase().endsWith(".pdf")) {
+                path += ".pdf";
+            }
+            
+            try {
+                ReportGenerator.generatePdfReport(productDAO.getAllProducts(), path);
+                statusLabel.setText("PDF report generated successfully");
+                JOptionPane.showMessageDialog(this, "PDF report generated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error generating PDF report: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void generateExcelReport() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Excel Report");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xlsx"));
+        
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.toLowerCase().endsWith(".xlsx")) {
+                path += ".xlsx";
+            }
+            
+            try {
+                ReportGenerator.generateExcelReport(productDAO.getAllProducts(), path);
+                statusLabel.setText("Excel report generated successfully");
+                JOptionPane.showMessageDialog(this, "Excel report generated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error generating Excel report: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void showTopSellingProduct() {
+        Product topProduct = productDAO.getTopSellingProduct();
+        
+        if (topProduct != null) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Top Selling Product:\n\n" +
+                "Name: " + topProduct.getName() + "\n" +
+                "Total Sold: " + topProduct.getSold() + "\n" +
+                "Current Stock: " + topProduct.getQuantity(),
+                "Top Selling Product",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        } else {
+            JOptionPane.showMessageDialog(this, "No product data available", "Top Selling Product", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    private void showLowStockProducts() {
+        List<Product> lowStockProducts = productDAO.getLowStockProducts(5); // Threshold of 5
+        
+        if (!lowStockProducts.isEmpty()) {
+            StringBuilder message = new StringBuilder();
+            message.append("Low Stock Products (Quantity <= 5):\n\n");
+            
+            for (Product product : lowStockProducts) {
+                message.append("- ").append(product.getName())
+                       .append(" (ID: ").append(product.getId())
+                       .append(", Stock: ").append(product.getQuantity())
+                       .append(")\n");
+            }
+            
+            JOptionPane.showMessageDialog(
+                this,
+                message.toString(),
+                "Low Stock Products",
+                JOptionPane.WARNING_MESSAGE
+            );
+        } else {
+            JOptionPane.showMessageDialog(
+                this,
+                "No products with low stock (Quantity <= 5)",
+                "Low Stock Products",
+                JOptionPane.INFORMATION_MESSAGE
+            );
         }
     }
     
     private void backupData() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Backup Data");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Data Files (*.dat)", "dat"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Backup Files", "bak"));
         
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String filePath = selectedFile.getAbsolutePath();
-            if (!filePath.endsWith(".dat")) {
-                filePath += ".dat";
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.toLowerCase().endsWith(".bak")) {
+                path += ".bak";
             }
             
             try {
-                productDAO.backup(filePath);
-                statusLabel.setText("Data backed up successfully to " + filePath);
+                productDAO.backup(path);
+                statusLabel.setText("Data backup created successfully");
+                JOptionPane.showMessageDialog(this, "Data backup created successfully", "Backup", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, 
-                        "Error backing up data: " + e.getMessage(), 
-                        "Backup Error", 
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error creating backup: " + e.getMessage(), "Backup Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -384,96 +496,28 @@ public class InventoryManagementSystem extends JFrame {
     private void restoreData() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Restore Data");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Data Files (*.dat)", "dat"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Backup Files", "bak"));
         
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
             
-            try {
-                productDAO.restore(selectedFile.getAbsolutePath());
-                refreshProductList();
-                statusLabel.setText("Data restored successfully from " + selectedFile.getAbsolutePath());
-            } catch (IOException | ClassNotFoundException e) {
-                JOptionPane.showMessageDialog(this, 
-                        "Error restoring data: " + e.getMessage(), 
-                        "Restore Error", 
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-    
-    private void generateReport(String type) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save Report");
-        
-        String extension = type.equals("pdf") ? "pdf" : "xlsx";
-        String description = type.equals("pdf") ? "PDF Files (*.pdf)" : "Excel Files (*.xlsx)";
-        fileChooser.setFileFilter(new FileNameExtensionFilter(description, extension));
-        
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String filePath = selectedFile.getAbsolutePath();
-            if (!filePath.endsWith("." + extension)) {
-                filePath += "." + extension;
-            }
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Restoring will overwrite current data. Continue?",
+                "Confirm Restore",
+                JOptionPane.YES_NO_OPTION
+            );
             
-            try {
-                ReportGenerator.generateReport(productDAO.getAllProducts(), filePath, type);
-                statusLabel.setText("Report generated successfully: " + filePath);
-                
-                // Open the file
-                Desktop.getDesktop().open(new File(filePath));
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, 
-                        "Error generating report: " + e.getMessage(), 
-                        "Report Error", 
-                        JOptionPane.ERROR_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    productDAO.restore(file.getAbsolutePath());
+                    loadProductData();
+                    statusLabel.setText("Data restored successfully");
+                    JOptionPane.showMessageDialog(this, "Data restored successfully", "Restore", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error restoring data: " + e.getMessage(), "Restore Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
-    }
-    
-    private void showTopSellingProduct() {
-        Product topProduct = productDAO.getTopSellingProduct();
-        if (topProduct != null && topProduct.getSold() > 0) {
-            JOptionPane.showMessageDialog(this, 
-                    "Top Selling Product:\n\n" +
-                    "Name: " + topProduct.getName() + "\n" +
-                    "Units Sold: " + topProduct.getSold() + "\n" +
-                    "Revenue: $" + String.format("%.2f", topProduct.getPrice() * topProduct.getSold()),
-                    "Top Selling Product",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, 
-                    "No sales data available yet.",
-                    "Top Selling Product",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-    
-    private void showLowStockProducts() {
-        List<Product> lowStockProducts = productDAO.getLowStockProducts(5); // Threshold of 5
-        
-        if (lowStockProducts.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                    "No products with low stock (below 5 units).",
-                    "Low Stock Alert",
-                    JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        StringBuilder message = new StringBuilder("Products with low stock (below 5 units):\n\n");
-        for (Product product : lowStockProducts) {
-            message.append(product.getName())
-                   .append(" - ")
-                   .append(product.getQuantity())
-                   .append(" units left\n");
-        }
-        
-        JOptionPane.showMessageDialog(this, 
-                message.toString(),
-                "Low Stock Alert",
-                JOptionPane.WARNING_MESSAGE);
     }
 }
