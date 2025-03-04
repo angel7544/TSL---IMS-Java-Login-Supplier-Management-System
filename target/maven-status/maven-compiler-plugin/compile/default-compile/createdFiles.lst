@@ -1,0 +1,5 @@
+models/Product.class
+Main.class
+ui/InventoryManagementSystem.class
+ui/ProductTableModel.class
+dao/ProductDAO.class

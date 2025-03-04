@@ -1,0 +1,241 @@
+./src/main/java/ui/ReportGenerator.java:7: error: package org.apache.poi.xssf.usermodel does not exist
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+                                    ^
+./src/main/java/ui/ReportGenerator.java:27: error: cannot find symbol
+    public static void generatePdfReport(List<Product> products, String filePath) throws DocumentException, IOException {
+                                                                                         ^
+  symbol:   class DocumentException
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:4: error: package com.itextpdf.text does not exist
+import com.itextpdf.text.*;
+^
+./src/main/java/ui/ReportGenerator.java:5: error: package com.itextpdf.text.pdf does not exist
+import com.itextpdf.text.pdf.*;
+^
+./src/main/java/ui/ReportGenerator.java:6: error: package org.apache.poi.ss.usermodel does not exist
+import org.apache.poi.ss.usermodel.*;
+^
+./src/main/java/ui/ReportGenerator.java:28: error: cannot find symbol
+        Document document = new Document(PageSize.A4);
+        ^
+  symbol:   class Document
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:28: error: cannot find symbol
+        Document document = new Document(PageSize.A4);
+                                ^
+  symbol:   class Document
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:28: error: cannot find symbol
+        Document document = new Document(PageSize.A4);
+                                         ^
+  symbol:   variable PageSize
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:29: error: cannot find symbol
+        PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        ^
+  symbol:   variable PdfWriter
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:34: error: cannot find symbol
+        Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+        ^
+  symbol:   class Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:34: error: cannot find symbol
+        Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+                             ^
+  symbol:   class Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:34: error: package Font does not exist
+        Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+                                      ^
+./src/main/java/ui/ReportGenerator.java:34: error: cannot find symbol
+        Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+                                                                 ^
+  symbol:   variable Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:35: error: cannot find symbol
+        Paragraph title = new Paragraph("Inventory Report", titleFont);
+        ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:35: error: cannot find symbol
+        Paragraph title = new Paragraph("Inventory Report", titleFont);
+                              ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:36: error: cannot find symbol
+        title.setAlignment(Element.ALIGN_CENTER);
+                           ^
+  symbol:   variable Element
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:40: error: cannot find symbol
+        Font normalFont = new Font(Font.FontFamily.HELVETICA, 12);
+        ^
+  symbol:   class Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:40: error: cannot find symbol
+        Font normalFont = new Font(Font.FontFamily.HELVETICA, 12);
+                              ^
+  symbol:   class Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:40: error: package Font does not exist
+        Font normalFont = new Font(Font.FontFamily.HELVETICA, 12);
+                                       ^
+./src/main/java/ui/ReportGenerator.java:42: error: cannot find symbol
+        Paragraph date = new Paragraph("Generated on: " + dateFormat.format(new Date()), normalFont);
+        ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:42: error: cannot find symbol
+        Paragraph date = new Paragraph("Generated on: " + dateFormat.format(new Date()), normalFont);
+                             ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:43: error: cannot find symbol
+        date.setAlignment(Element.ALIGN_CENTER);
+                          ^
+  symbol:   variable Element
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:46: error: cannot find symbol
+        document.add(Chunk.NEWLINE);
+                     ^
+  symbol:   variable Chunk
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:49: error: cannot find symbol
+        PdfPTable table = new PdfPTable(6); // 6 columns
+        ^
+  symbol:   class PdfPTable
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:49: error: cannot find symbol
+        PdfPTable table = new PdfPTable(6); // 6 columns
+                              ^
+  symbol:   class PdfPTable
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:55: error: cannot find symbol
+            PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+            ^
+  symbol:   class PdfPCell
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:55: error: cannot find symbol
+            PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                                ^
+  symbol:   class PdfPCell
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:55: error: cannot find symbol
+            PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                                             ^
+  symbol:   class Phrase
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:55: error: cannot find symbol
+            PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                                                                ^
+  symbol:   class Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:55: error: package Font does not exist
+            PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                                                                         ^
+./src/main/java/ui/ReportGenerator.java:55: error: cannot find symbol
+            PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                                                                                                    ^
+  symbol:   variable Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:56: error: cannot find symbol
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                                        ^
+  symbol:   variable Element
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:57: error: cannot find symbol
+            cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                    ^
+  symbol:   variable BaseColor
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:74: error: cannot find symbol
+        document.add(Chunk.NEWLINE);
+                     ^
+  symbol:   variable Chunk
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:75: error: cannot find symbol
+        document.add(new Paragraph("Total Products: " + products.size(), normalFont));
+                         ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:85: error: cannot find symbol
+        document.add(new Paragraph("Total Quantity: " + totalQuantity, normalFont));
+                         ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:86: error: cannot find symbol
+        document.add(new Paragraph(String.format("Total Inventory Value: $%.2f", totalValue), normalFont));
+                         ^
+  symbol:   class Paragraph
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:92: error: cannot find symbol
+        Workbook workbook = new XSSFWorkbook();
+        ^
+  symbol:   class Workbook
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:92: error: cannot find symbol
+        Workbook workbook = new XSSFWorkbook();
+                                ^
+  symbol:   class XSSFWorkbook
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:93: error: cannot find symbol
+        Sheet sheet = workbook.createSheet("Inventory Report");
+        ^
+  symbol:   class Sheet
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:96: error: cannot find symbol
+        CellStyle headerStyle = workbook.createCellStyle();
+        ^
+  symbol:   class CellStyle
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:97: error: cannot find symbol
+        Font headerFont = workbook.createFont();
+        ^
+  symbol:   class Font
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:100: error: package IndexedColors does not exist
+        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+                                                        ^
+./src/main/java/ui/ReportGenerator.java:101: error: cannot find symbol
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                                   ^
+  symbol:   variable FillPatternType
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:104: error: cannot find symbol
+        Row headerRow = sheet.createRow(0);
+        ^
+  symbol:   class Row
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:108: error: cannot find symbol
+            Cell cell = headerRow.createCell(i);
+            ^
+  symbol:   class Cell
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:117: error: cannot find symbol
+            Row row = sheet.createRow(rowNum++);
+            ^
+  symbol:   class Row
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:134: error: cannot find symbol
+        Sheet summarySheet = workbook.createSheet("Summary");
+        ^
+  symbol:   class Sheet
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:148: error: cannot find symbol
+        Row summaryHeaderRow = summarySheet.createRow(0);
+        ^
+  symbol:   class Row
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:149: error: cannot find symbol
+        Cell headerCell = summaryHeaderRow.createCell(0);
+        ^
+  symbol:   class Cell
+  location: class ReportGenerator
+./src/main/java/ui/ReportGenerator.java:158: error: cannot find symbol
+            Row row = summarySheet.createRow(i + 2);
+            ^
+  symbol:   class Row
+  location: class ReportGenerator
+51 errors
+ 
