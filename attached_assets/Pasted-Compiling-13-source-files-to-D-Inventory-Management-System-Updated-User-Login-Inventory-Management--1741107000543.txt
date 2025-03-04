@@ -1,0 +1,28 @@
+Compiling 13 source files to D:\Inventory-Management-System_Updated User Login\Inventory-Management-System\target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/Inventory-Management-System_Updated User Login/Inventory-Management-System/src/main/java/ui/SupplierManagementDialog.java:[297,20] switch expressions are not supported in -source 8
+  (use -source 14 or higher to enable switch expressions)
+[ERROR] /D:/Inventory-Management-System_Updated User Login/Inventory-Management-System/src/main/java/ui/SupplierManagementDialog.java:[298,24] switch rules are not supported in -source 8
+  (use -source 14 or higher to enable switch rules)
+[INFO] 2 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.161 s
+[INFO] Finished at: 2025-03-04T22:18:02+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (default-compile) on project myartifactid: Compilation failure: Compilation failure:
+[ERROR] /D:/Inventory-Management-System_Updated User Login/Inventory-Management-System/src/main/java/ui/SupplierManagementDialog.java:[297,20] switch expressions are not supported in -source 8
+[ERROR]   (use -source 14 or higher to enable switch expressions)
+[ERROR] /D:/Inventory-Management-System_Updated User Login/Inventory-Management-System/src/main/java/ui/SupplierManagementDialog.java:[298,24] switch rules are not supported in -source 8
+[ERROR]   (use -source 14 or higher to enable switch rules)
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
