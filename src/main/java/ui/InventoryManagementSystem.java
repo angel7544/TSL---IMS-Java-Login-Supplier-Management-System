@@ -139,13 +139,7 @@ public class InventoryManagementSystem extends JFrame {
         JPanel reportsPanel = new JPanel(new GridLayout(6, 1, 10, 10));
         reportsPanel.setBorder(BorderFactory.createTitledBorder("Reports & Tools"));
         
-        JButton pdfReportButton = new JButton("Generate PDF Report");
-        pdfReportButton.addActionListener(e -> generatePdfReport());
-        reportsPanel.add(pdfReportButton);
-        
-        JButton excelReportButton = new JButton("Generate Excel Report");
-        excelReportButton.addActionListener(e -> generateExcelReport());
-        reportsPanel.add(excelReportButton);
+        // Report generation buttons removed
         
         JButton topSellingButton = new JButton("Show Top Selling Product");
         topSellingButton.addActionListener(e -> showTopSellingProduct());
@@ -379,49 +373,9 @@ public class InventoryManagementSystem extends JFrame {
         }
     }
     
-    private void generatePdfReport() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save PDF Report");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Files", "pdf"));
-        
-        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            String path = file.getAbsolutePath();
-            if (!path.toLowerCase().endsWith(".pdf")) {
-                path += ".pdf";
-            }
-            
-            try {
-                ReportGenerator.generatePdfReport(productDAO.getAllProducts(), path);
-                statusLabel.setText("PDF report generated successfully");
-                JOptionPane.showMessageDialog(this, "PDF report generated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error generating PDF report: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
+    // PDF report generation method removed
     
-    private void generateExcelReport() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save Excel Report");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xlsx"));
-        
-        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            String path = file.getAbsolutePath();
-            if (!path.toLowerCase().endsWith(".xlsx")) {
-                path += ".xlsx";
-            }
-            
-            try {
-                ReportGenerator.generateExcelReport(productDAO.getAllProducts(), path);
-                statusLabel.setText("Excel report generated successfully");
-                JOptionPane.showMessageDialog(this, "Excel report generated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error generating Excel report: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
+    // Excel report generation method removed
     
     private void showTopSellingProduct() {
         Product topProduct = productDAO.getTopSellingProduct();
