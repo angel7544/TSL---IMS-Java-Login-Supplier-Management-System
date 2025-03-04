@@ -264,14 +264,15 @@ public class InventoryManagementSystem extends JFrame {
                         "Version: 1.1.0<br>" +
                         "Developer: Angel Singh<br>" +
                         "Contact: angelsingh2199@gmail.com<br>" +
-                        "Description: # Inventory Management System\r\n" + //
-                                                        "\r\n" + //
-                                                        "A full-featured Java application for managing inventory, products, and suppliers.\r\n" + //
-                                                        "\r\n" + //
-                                                        "## Overview\r\n" + //
-                                                        "\r\n" + //
-                                                        "This Inventory Management System helps businesses track products, manage suppliers, monitor stock levels, and generate reports. Built with Java Swing, it provides an intuitive graphical interface for all inventory management operations.<br>" +
-                        "Built using Apache POI and Swing." +
+                        "Description: # Inventory Management System<br>" + //
+                                                        "<br>" + //
+                                                        "A full-featured Java application for managing inventory, products, and suppliers.<br>" + //
+                                                        "\<br>" + //
+                                                        "## Overview<br>" + //
+                                                        "<br>" + //
+                                                        "This Inventory Management System helps businesses track products, manage suppliers, monitor stock levels, and generate reports.<br>"
+                                                        "Built with Java Swing, it provides an intuitive graphical interface for all inventory management operations.<br>" +
+                        "Built using Apache POI and Swing.<br>" +
                         "</html>",
                 "About",
                 JOptionPane.INFORMATION_MESSAGE)
